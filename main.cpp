@@ -5,6 +5,8 @@
 #include "game_state.h"
 #include "card.h"
 
+//Herodegon Wuz H3re
+
 using namespace std;
 
 /**
