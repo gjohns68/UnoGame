@@ -40,6 +40,9 @@ string NumberCard::render(int line) const{
             case YELLOW:
                 return "|  YELLOW   |";
                 break;
+            case DRAW2:
+                return "|  DRAW 2   |";
+                break;
             default:
                 return "|           |";
                 break;
@@ -55,6 +58,33 @@ string NumberCard::render(int line) const{
         case 7: return "|___________|";
         default:
             return " ";
+    }
+}
+
+
+string NumberCard::draw2(int line) const {
+    stringstream ss;
+    switch (line) {
+    case 0: return ".___________.";
+    case 1: return "|           |";
+    case 2:
+        switch (color) {
+      
+        case DRAW2:
+            return "|  DRAW 2   |";
+            break;
+        default:
+            return "|           |";
+            break;
+            break;
+        }
+
+    case 3: return "|           |";
+    case 4: return "|           |";
+    case 5: return "|           |";
+    case 6: return "|___________|";
+    default:
+        return " ";
     }
 }
 
