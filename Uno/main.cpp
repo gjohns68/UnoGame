@@ -34,7 +34,7 @@ void buildDeck(vector<Card*>& deck);
  * from the deck is being drawn to. This can be either a hand or the discard
  * pile
  */
-void drawCards(vector<Card*>& deck, vector<Card*>& target, int);
+int drawCards(vector<Card*>& deck, vector<Card*>& target, int);
 
 /**
  * Function to draw 7 cards to each player's hand at the beginning of the game.
@@ -75,26 +75,62 @@ void renderDiscard(vector<Card*>);
  */
 void takeTurn(vector<Card*>& deck, vector<Card*>& hand, vector<Card*>& discard, GameState& gameState);
 
+void replenishDeck(vector<Card*> &deck, vector<Card*> &discard);
+
 int main(){
     srand(time(0));
-    const int NUM_PLAYERS = 2;
-    GameState gameState(NUM_PLAYERS);
+    cout << "How many players are there?" << endl;
+    int NUM_PLAYERS;
+    cin >> NUM_PLAYERS;
     
+    GameState gameState(NUM_PLAYERS);
+
     vector<Card*> deck;
     vector<Card*> discard;
+
     
     vector<vector<Card*>> hands(NUM_PLAYERS);
-    
+
     buildDeck(deck);
     shuffleDeck(deck);
     populateHands(deck, hands);
     drawCards(deck, discard, 1);
     
+    bool winner = false;
     while(1 /* TODO: Check for winner (no cards in hand)*/){
-        takeTurn(deck, hands.at(gameState.currentPlayerIndex), discard, gameState);
+        cout << "test" << endl;
+        if(deck.size() < 5){
+            cout << "test2" << endl;
+            replenishDeck(deck, discard);
+        }
+        
+        for(int i = 0; i < NUM_PLAYERS; i++){
+            cout << "test3" << endl;
+            if(hands.at(i).size() == 0 ){
+                cout << "Player " << i+1 << "Wins!" << endl;
+                bool winner = true;
+                break;
+            } else {
+                break;
+            }
+        }
+        if(winner == false){
+            cout << "test4" << endl;
+            takeTurn(deck, hands.at(gameState.currentPlayerIndex), discard, gameState);
+        }
     }
     
     return 0;
+}
+
+void replenishDeck(vector<Card*> &deck, vector<Card*> &discard){
+    Card* temp = discard.at(discard.size() -1);
+    discard.erase(discard.begin() + (discard.size() - 1));
+    while(discard.size() > 0){
+        int idx1 = rand() % discard.size() - 2;
+        deck.push_back(discard.at(idx1));
+        discard.erase(discard.begin() + idx1);
+    }
 }
 
 void clearTerminal(){
@@ -105,12 +141,31 @@ void clearTerminal(){
 
 void buildDeck(vector<Card*> &deck){
     // Create Number Cards
-    for(int c = RED; c < NUM_COLORS; c++){
+    for(int c = RED; c < 4; c++){
         for(int n = 0; n < 10; n++){
-            Card* temp = new NumberCard((Color)c, n);
+            Card* temp = new NumberCard((Color)c, n, NUM);
             deck.push_back(temp);
             deck.push_back(temp);
         }
+    }
+    for(int i = 0; i < 8; i++){
+        Card* temp = new WildCard(WILD);
+        deck.push_back(temp);
+    }
+    for(int i = 0; i < 4; i++){
+        Card* temp = new SkipCard((Color)i, SKIP);
+        deck.push_back(temp);
+        deck.push_back(temp);
+    }
+    for(int i = 0; i < 4; i++){
+        Card* temp = new ReverseCard((Color)i, REVERSE);
+        deck.push_back(temp);
+        deck.push_back(temp);
+    }
+    for(int i = 0; i < 4; i++){
+        Card* temp = new Plus2Card((Color)i, PLUS2);
+        deck.push_back(temp);
+        deck.push_back(temp);
     }
 }
 
@@ -124,15 +179,16 @@ void shuffleDeck(vector<Card*> &deck){
     }
 }
 
-void drawCards(vector<Card*> &deck, vector<Card*> &target, int numToDraw){
+int drawCards(vector<Card*> &deck, vector<Card*> &target, int numToDraw){
     for(int i = 0; i < numToDraw; i++){
         if(deck.size() > 0){
             target.push_back(deck.at(deck.size() - 1));
             deck.pop_back();
         } else {
-            cout << "WARNING: Deck out of cards" << endl;
+            return numToDraw - i;
         }
     }
+    return 0;
 }
 
 void populateHands(vector<Card*> &deck, vector<vector<Card*>> &hands){
@@ -164,10 +220,14 @@ void renderDiscard(vector<Card*> discard){
 void takeTurn(vector<Card*> &deck, vector<Card*> &hand, vector<Card*> &discard, GameState &gameState){
     clearTerminal();
     renderDiscard(discard);
-    cout << "Player " << gameState.currentPlayerIndex << "'s turn." << endl;
+    cout << "Player " << gameState.currentPlayerIndex + 1 << "'s turn." << endl;
     
     // TODO: Draw cards if necessary (draw 2 card)
-    drawCards(deck, hand, gameState.numCardsToDraw);
+    int check = drawCards(deck, hand, gameState.numCardsToDraw);
+    if(check != 0 ){
+        replenishDeck(deck, discard);
+        drawCards(deck, hand, check);
+    }
     gameState.numCardsToDraw = 0; // reset cards to draw back to 0
     
     renderHand(hand);
@@ -185,11 +245,61 @@ void takeTurn(vector<Card*> &deck, vector<Card*> &hand, vector<Card*> &discard, 
         int input;
         cin >> input;
         
-        
         // Evaluate user input
         if(input < i){
             // Play card at index input
-            if(hand.at(input)->play(discard.at(discard.size()-1), gameState)){
+            if(gameState.numCardsToDraw > 0){
+                if(hand.at(input)->getType() == discard.at(discard.size() -1)->getType()){
+                    Card* temp;
+                    temp = hand.at(input);
+                    discard.push_back(temp);
+                    hand.erase(hand.begin() + input); // Remove card in hand at position "input"
+                    gameState.numCardsToDraw++;
+                    gameState.numCardsToDraw++;
+                } else if(input = i) {
+                    drawCards(deck, hand, gameState.numCardsToDraw);
+                    gameState.numCardsToDraw = 0;
+                } else {
+                    cout << "Improper choice" << endl;
+                    takeTurn(deck, hand, discard, gameState);
+                    return;
+                }
+            }else if(hand.at(input)->play(discard.at(discard.size()-1), gameState)){
+                if(hand.at(input)->getType() == WILD){
+                    cout << "What color do you want to change to?" << endl;
+                    cout << "0: Red\n1:Green\n2: Yellow\n3: Blue" << endl;
+                    int wildInput;
+                    cin >> wildInput;
+                    switch(wildInput){
+                        case 0:
+                            hand.at(input)->setColor(RED);
+                            break;
+                        case 1:
+                            hand.at(input)->setColor(GREEN);
+                            break;
+                        case 2:
+                            hand.at(input)->setColor(YELLOW);
+                            break;
+                        case 3:
+                            hand.at(input)->setColor(BLUE);
+                            break;
+                        default:
+                            cout << "Improper choice" << endl;
+                            takeTurn(deck, hand, discard, gameState);
+                            return;
+                    }
+                } else if(hand.at(input)->getType() == SKIP){
+                    gameState.skipTurn = true;
+                } else if(hand.at(input)->getType() == REVERSE){
+                    if(gameState.turnDirection == LEFT){
+                        gameState.turnDirection == RIGHT;
+                    } else {
+                        gameState.turnDirection == LEFT;
+                    }
+                } else if(hand.at(input)->getType() == PLUS2){
+                    gameState.numCardsToDraw++;
+                    gameState.numCardsToDraw++;
+                }
                 Card* temp;
                 temp = hand.at(input);
                 discard.push_back(temp);
