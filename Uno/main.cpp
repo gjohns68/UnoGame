@@ -98,14 +98,11 @@ int main(){
     
     bool winner = false;
     while(1 /* TODO: Check for winner (no cards in hand)*/){
-        cout << "test" << endl;
         if(deck.size() < 5){
-            cout << "test2" << endl;
             replenishDeck(deck, discard);
         }
         
         for(int i = 0; i < NUM_PLAYERS; i++){
-            cout << "test3" << endl;
             if(hands.at(i).size() == 0 ){
                 cout << "Player " << i+1 << "Wins!" << endl;
                 bool winner = true;
@@ -115,7 +112,6 @@ int main(){
             }
         }
         if(winner == false){
-            cout << "test4" << endl;
             takeTurn(deck, hands.at(gameState.currentPlayerIndex), discard, gameState);
         }
     }
