@@ -9,7 +9,7 @@ using namespace std;
 /**
  * Enumeration to represent UNO card colors.
  */
-enum Color{RED, BLUE, GREEN, YELLOW, NUM_COLORS};
+enum Color{RED, BLUE, GREEN, YELLOW, DRAW2, NUM_COLORS};
 
 /**
  * @class Card
@@ -50,7 +50,7 @@ class Card{
      */
     void setNumber(int n);
     
-    
+    virtual string draw2(int line) const = 0;
     virtual string render(int line) const = 0;
     virtual bool play(Card* discard, GameState& gameState) = 0;
 };
