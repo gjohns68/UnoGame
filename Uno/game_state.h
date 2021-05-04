@@ -32,6 +32,8 @@ class GameState{
     void nextTurn();
     /// Used to indicate if the player's turn should be skipped
     bool skipTurn = false;
+    void setReverse();
+    bool IsReverse = false; 
 };
 
 

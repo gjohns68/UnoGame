@@ -2,6 +2,9 @@
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <string>
 #include "game_state.h"
 #include "card.h"
 
@@ -77,12 +80,37 @@ void takeTurn(vector<Card*>& deck, vector<Card*>& hand, vector<Card*>& discard, 
 
 void replenishDeck(vector<Card*> &deck, vector<Card*> &discard);
 
+bool verifiyInput(string x){
+    bool digit = true;
+    for(int i = 0; i < x.length(); i++){
+        if(!isdigit(x[i])){
+            digit = false;
+            break;
+        } 
+    }
+    
+    return digit;
+}
+
 int main(){
     srand(time(0));
-    cout << "How many players are there?" << endl;
     int NUM_PLAYERS;
-    cin >> NUM_PLAYERS;
+    while(true){
+        bool isDigit = true;
+        cout << "How many players are there?" << endl;
+        string INPUT;
+        cin >> INPUT;
+        //checks if users string is a digit
+        if(verifiyInput(INPUT)){
+            //assigns string to int
+            NUM_PLAYERS = stoi(INPUT);
+            break;
+        } else {
+            cout << "Please enter a number" << endl;
+        }
+    }
     
+    cout << NUM_PLAYERS << endl;
     GameState gameState(NUM_PLAYERS);
 
     vector<Card*> deck;
@@ -238,64 +266,78 @@ void takeTurn(vector<Card*> &deck, vector<Card*> &hand, vector<Card*> &discard, 
             cout << i << ": Play Card" << endl;
         }
         cout << i << ": Draw a Card" << endl;
+        string sinput;
         int input;
-        cin >> input;
+        
+        while(true){
+            cin >> sinput;
+            if(verifiyInput(sinput)){
+                if(stoi(sinput) < i){
+                    input = stoi(sinput);
+                    break;
+                }
+            }
+        }
+        
         
         // Evaluate user input
         if(input < i){
-            // Play card at index input
-            if(gameState.numCardsToDraw > 0){
-                if(hand.at(input)->getType() == discard.at(discard.size() -1)->getType()){
+            if(hand.at(input)->getType() == SKIP){
+                    gameState.skipTurn = true;
                     Card* temp;
                     temp = hand.at(input);
                     discard.push_back(temp);
                     hand.erase(hand.begin() + input); // Remove card in hand at position "input"
-                    gameState.numCardsToDraw++;
-                    gameState.numCardsToDraw++;
-                } else if(input = i) {
-                    drawCards(deck, hand, gameState.numCardsToDraw);
-                    gameState.numCardsToDraw = 0;
-                } else {
-                    cout << "Improper choice" << endl;
-                    takeTurn(deck, hand, discard, gameState);
-                    return;
-                }
-            }else if(hand.at(input)->play(discard.at(discard.size()-1), gameState)){
-                if(hand.at(input)->getType() == WILD){
-                    cout << "What color do you want to change to?" << endl;
-                    cout << "0: Red\n1:Green\n2: Yellow\n3: Blue" << endl;
-                    int wildInput;
-                    cin >> wildInput;
-                    switch(wildInput){
-                        case 0:
-                            hand.at(input)->setColor(RED);
-                            break;
-                        case 1:
-                            hand.at(input)->setColor(GREEN);
-                            break;
-                        case 2:
-                            hand.at(input)->setColor(YELLOW);
-                            break;
-                        case 3:
-                            hand.at(input)->setColor(BLUE);
-                            break;
-                        default:
-                            cout << "Improper choice" << endl;
-                            takeTurn(deck, hand, discard, gameState);
-                            return;
-                    }
-                } else if(hand.at(input)->getType() == SKIP){
-                    gameState.skipTurn = true;
                 } else if(hand.at(input)->getType() == REVERSE){
-                    if(gameState.turnDirection == LEFT){
-                        gameState.turnDirection == RIGHT;
-                    } else {
-                        gameState.turnDirection == LEFT;
-                    }
+                    cout << "this is a reverse card" << endl;
+                    gameState.setReverse();
+                    Card* temp;
+                    temp = hand.at(input);
+                    discard.push_back(temp);
+                    hand.erase(hand.begin() + input); // Remove card in hand at position "input"
                 } else if(hand.at(input)->getType() == PLUS2){
                     gameState.numCardsToDraw++;
                     gameState.numCardsToDraw++;
-                }
+                    Card* temp;
+                    temp = hand.at(input);
+                    discard.push_back(temp);
+                    hand.erase(hand.begin() + input); // Remove card in hand at position "input"
+                }  else if(hand.at(input)->play(discard.at(discard.size()-1), gameState)){
+                    if(hand.at(input)->getType() == WILD){
+                        //Makes sure user input is good
+                        int wildInput;
+                        while(true){
+                            cout << "What color do you want to change to?" << endl;
+                            cout << "0: Red\n1:Green\n2: Yellow\n3: Blue" << endl;
+                            string swildInput;
+                            cin >> swildInput;
+                            if(verifiyInput(swildInput)){
+                                if(stoi(swildInput) > -1 && stoi(swildInput) < 4){
+                                    wildInput = stoi(swildInput);
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        switch(wildInput){
+                            case 0:
+                                hand.at(input)->setColor(RED);
+                                break;
+                            case 1:
+                                hand.at(input)->setColor(GREEN);
+                                break;
+                            case 2:
+                                hand.at(input)->setColor(YELLOW);
+                                break;
+                            case 3:
+                                hand.at(input)->setColor(BLUE);
+                                break;
+                            default:
+                                cout << "Improper choice" << endl;
+                                takeTurn(deck, hand, discard, gameState);
+                                return;
+                        }
+                } 
                 Card* temp;
                 temp = hand.at(input);
                 discard.push_back(temp);

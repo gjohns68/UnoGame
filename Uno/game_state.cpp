@@ -20,3 +20,14 @@ void GameState::nextTurn(){
             currentPlayerIndex = numPlayers - 1;
     }
 }
+
+void GameState::setReverse(){
+    if(IsReverse == false) {
+        IsReverse = true;
+        turnDirection = RIGHT;
+    }
+    else {
+        IsReverse = false;
+        turnDirection = LEFT;
+    }
+}

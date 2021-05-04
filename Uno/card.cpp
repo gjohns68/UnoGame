@@ -215,11 +215,11 @@ string ReverseCard::render(int line) const{
 }
 
 bool ReverseCard::play(Card* discard, GameState &gameState) {
-   if(color == discard->getColor() || type == discard->getType()){
-       return true;
-   } else{
-       return false;
-   }
+   if(color == discard->getColor() || number == discard->getNumber()){
+        return true;
+    } else {
+        return false;
+    }
 }
 
 Plus2Card::Plus2Card(Color c, Type t) {
@@ -264,7 +264,7 @@ string Plus2Card::render(int line) const{
 }
 
 bool Plus2Card::play(Card* discard, GameState &gameState) {
-   if(color == discard->getColor() || type == discard->getType()){
+   if(color == discard->getColor() && type == discard->getType()){
        return true;
    } else{
        return false;
