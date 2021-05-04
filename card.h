@@ -9,7 +9,8 @@ using namespace std;
 /**
  * Enumeration to represent UNO card colors.
  */
-enum Color{RED, BLUE, GREEN, YELLOW, DRAW2, NUM_COLORS};
+enum Color{RED, BLUE, GREEN, YELLOW, NUM_COLORS};
+enum Type{NUM, WILD, SKIP, REVERSE, PLUS2, NUM_TYPE};
 
 /**
  * @class Card
@@ -20,6 +21,8 @@ class Card{
     protected:
     Color color;
     int number;
+    Type type;
+    
     
     public:
     /**
@@ -50,7 +53,10 @@ class Card{
      */
     void setNumber(int n);
     
-    virtual string draw2(int line) const = 0;
+    Type getType() const;
+    
+    void setType(Type t);
+    
     virtual string render(int line) const = 0;
     virtual bool play(Card* discard, GameState& gameState) = 0;
 };
@@ -69,7 +75,7 @@ class NumberCard : public Card{
      * @param c The enumeratorated color type for the card.
      * @param n The integer value of the card's number.
      */
-    NumberCard(Color c, int n);
+    NumberCard(Color c, int n, Type t);
     
     /**
      * Returns the ascii string with the rendering of the cards image at a 
@@ -94,8 +100,35 @@ class NumberCard : public Card{
      * according to the top card of the discard pile.
      */
     bool play(Card*, GameState&);
+    
 };
 
+class WildCard : public Card{
+    public:
+    WildCard(Type t);
+    string render(int) const;
+    bool play(Card*, GameState&);
+};
 
+class SkipCard : public Card{
+    public:
+    SkipCard(Color c, Type t);
+    string render(int) const;
+    bool play(Card*, GameState&);
+};
+
+class ReverseCard : public Card{
+    public:
+    ReverseCard(Color c, Type t);
+    string render(int) const;
+    bool play(Card*, GameState&);
+};
+
+class Plus2Card : public Card{
+    public:
+    Plus2Card(Color c, Type t);
+    string render(int) const;
+    bool play(Card*, GameState&);
+};
 
 #endif
