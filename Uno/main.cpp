@@ -103,8 +103,12 @@ int main(){
         //checks if users string is a digit
         if(verifiyInput(INPUT)){
             //assigns string to int
-            NUM_PLAYERS = stoi(INPUT);
-            break;
+            if(stoi(INPUT) > 1 && stoi(INPUT) < 16){
+                NUM_PLAYERS = stoi(INPUT);
+                break;
+            } else {
+                cout << "Please enter a number 2-15" << endl;
+            }
         } else {
             cout << "Please enter a number" << endl;
         }
